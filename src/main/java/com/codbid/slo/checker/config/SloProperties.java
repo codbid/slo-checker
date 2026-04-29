@@ -13,7 +13,7 @@ public class SloProperties {
 
     private Duration checkInterval = Duration.ofSeconds(10);
 
-    private PrometheusProperties properties = new PrometheusProperties();
+    private PrometheusProperties prometheus = new PrometheusProperties();
 
     private List<RuleProperties> rules = new ArrayList<>();
 
@@ -25,12 +25,12 @@ public class SloProperties {
         this.checkInterval = checkInterval;
     }
 
-    public PrometheusProperties getPrometheusProperties() {
-        return properties;
+    public PrometheusProperties getPrometheus() {
+        return prometheus;
     }
 
     public void setPrometheusProperties(PrometheusProperties properties) {
-        this.properties = properties;
+        this.prometheus = properties;
     }
 
     public List<RuleProperties> getRules() {
