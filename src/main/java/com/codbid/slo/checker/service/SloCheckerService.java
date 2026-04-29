@@ -6,9 +6,11 @@ import com.codbid.slo.checker.model.SloOperator;
 import com.codbid.slo.checker.model.SloStatus;
 import com.codbid.slo.checker.prometheus.PrometheusClient;
 import com.codbid.slo.checker.prometheus.PrometheusSample;
+import com.codbid.slo.checker.store.SloCheckResultStore;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,10 +19,19 @@ public class SloCheckerService {
 
     private final PrometheusClient client;
     private final PromQlBuilder promQlBuilder;
+    private final SloCheckResultStore resultStore;
+    private final SloProperties properties;
 
-    public SloCheckerService(PrometheusClient client, PromQlBuilder promQlBuilder) {
+    public SloCheckerService(
+            SloProperties properties,
+            PrometheusClient client,
+            PromQlBuilder promQlBuilder,
+            SloCheckResultStore resultStore
+    ) {
+        this.properties = properties;
         this.client = client;
         this.promQlBuilder = promQlBuilder;
+        this.resultStore = resultStore;
     }
 
     public List<SloCheckResult> checkRule(SloProperties.RuleProperties rule) {
@@ -40,6 +51,26 @@ public class SloCheckerService {
         } catch (Exception e) {
             return List.of(errorResult(rule, promQl, e, checkedAt));
         }
+    }
+
+    public List<SloCheckResult> checkAll() {
+        List<SloCheckResult> results = new ArrayList<>();
+
+        for (SloProperties.RuleProperties rule : properties.getRules()) {
+            results.addAll(checkRule(rule));
+        }
+
+        resultStore.saveLatest(results);
+
+        return results;
+    }
+
+    public List<SloCheckResult> getLatestResults() {
+        return resultStore.findLatest();
+    }
+
+    public List<SloCheckResult> getLatestViolations() {
+        return resultStore.findLatestViolations();
     }
 
     private SloCheckResult checkSample(SloProperties.RuleProperties rule, PrometheusSample sample, Instant checkedAt) {
