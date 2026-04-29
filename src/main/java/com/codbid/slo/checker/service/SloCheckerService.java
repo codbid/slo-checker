@@ -78,7 +78,7 @@ public class SloCheckerService {
 
         return new SloCheckResult(
                 rule.getName(),
-                sample.labels(),
+                businessLabels(sample.labels()),
                 rule.getMetric(),
                 rule.getOperator(),
                 rule.getThreshold(),
@@ -129,5 +129,15 @@ public class SloCheckerService {
             case GREATER_THAN -> actual > threshold;
             case GREATER_THAN_OR_EQUAL -> actual >= threshold;
         };
+    }
+
+    private Map<String, String> businessLabels(Map<String, String> labels) {
+        return Map.of(
+                "service", labels.getOrDefault("service", "unknown"),
+                "operation", labels.getOrDefault("operation", "unknown"),
+                "kind", labels.getOrDefault("kind", "unknown"),
+                "environment", labels.getOrDefault("environment", "unknown"),
+                "window", labels.getOrDefault("window", "unknown")
+        );
     }
 }
