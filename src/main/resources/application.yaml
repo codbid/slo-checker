@@ -7,7 +7,7 @@ spring:
 
   config:
     import:
-      - classpath:rules.yaml
+      - optional:classpath:rules.yaml
 
 management:
   endpoints:
@@ -21,6 +21,9 @@ management:
 
 slo:
   check-interval: 10s
+
+  metrics:
+    refresh-interval: 5s
 
   prometheus:
     url: http://localhost:9090
